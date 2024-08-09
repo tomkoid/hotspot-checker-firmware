@@ -78,6 +78,8 @@ void http_get_task(void *pvParameters) {
       // free(buffer);
     } else {
       ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
+      vTaskDelay(3000 / portTICK_PERIOD_MS);
+      continue;
     }
 
     esp_http_client_cleanup(client);
