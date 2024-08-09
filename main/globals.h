@@ -49,8 +49,6 @@
 
 #define BUILTIN_LED 2
 
-static EventGroupHandle_t s_wifi_event_group;
-
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
 
@@ -60,10 +58,5 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WEB_SUBMIT_URL CONFIG_ESP_SUBMIT_URL
 
 #define WEB_PATH "/"
-
-static const char *REQUEST = "GET " WEB_PATH " HTTP/1.0\r\n"
-                             "Host: " WEB_SERVER ":" WEB_PORT "\r\n"
-                             "User-Agent: esp-idf/1.0 esp32\r\n"
-                             "\r\n";
 
 #endif
