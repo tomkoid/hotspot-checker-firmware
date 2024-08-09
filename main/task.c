@@ -1,13 +1,7 @@
-#include "globals.h"
-#include "lwip/netdb.h"
-#include "lwip/sockets.h"
-#include <esp_log.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-
-#include <sys/param.h>
-
+#include "driver/gpio.h"
 #include "esp_http_client.h"
+#include "globals.h"
+#include <esp_log.h>
 
 #define MAX_HTTP_RECV_BUFFER 512
 #define MAX_HTTP_OUTPUT_BUFFER 2048
