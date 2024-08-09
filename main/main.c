@@ -1,4 +1,5 @@
 #include "freertos/FreeRTOS.h"
+#include "globals.h"
 #include "nvs_flash.h"
 
 #include "driver/touch_sensor.h"
@@ -41,8 +42,11 @@ void app_main(void) {
 
   wifi_init_sta();
 
+  // Prepare the server
+  start_task();
+
   // Create the task
-  http_get_task(NULL);
+  submit_task(WEB_SUBMIT_URL);
 
   printf("Restarting now.\n");
   fflush(stdout);

@@ -30,5 +30,12 @@ menu "Server Endpoint"
         default "http://example.com"
         help
             URL of the example to connect to.
+
+    config ESP_SUBMIT_PASSWORD
+        string "Submit Password"
+        default "esp32"
+        help
+            Password for count API
+
 endmenu
 
