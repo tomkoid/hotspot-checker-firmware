@@ -39,7 +39,7 @@
 
 #include "globals.h"
 #include "task.c"
-#include "wifi.h"
+#include "wifi.c"
 
 #define FOO_BAR_ENABLE CONFIG_FOO_ENABLE_BAR
 

@@ -38,7 +38,6 @@
 #include "sdkconfig.h"
 
 #include "globals.h"
-#include "wifi.h"
 
 static int s_retry_num = 0;
 bool wifi_connected = false;
