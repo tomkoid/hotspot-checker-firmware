@@ -83,7 +83,7 @@ esp_err_t http_post(const char *url) {
   return err;
 }
 
-void submit_task(void *pvParameters) {
+void submit_task() {
   const char *TAG = "SUBMIT_TASK";
 
   while (1) {
@@ -106,6 +106,11 @@ void submit_task(void *pvParameters) {
     ESP_LOGI(TAG, "Starting again!");
 
     gpio_set_level(BUILTIN_LED, 1);
+
+    // if device is physically stopped, stop submitting
+    if (device_stopped) {
+      break;
+    }
   }
 }
 

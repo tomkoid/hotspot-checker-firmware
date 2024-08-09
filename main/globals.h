@@ -1,6 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <stdbool.h>
+
 #define ESP_WIFI_SSID CONFIG_ESP_WIFI_SSID
 #define ESP_WIFI_PASS CONFIG_ESP_WIFI_PASSWORD
 // #define ESP_WIFI_CHANNEL 9
@@ -17,5 +19,7 @@
 #define WEB_SUBMIT_PASSWORD CONFIG_ESP_SUBMIT_PASSWORD
 
 #define WEB_PATH "/"
+
+bool device_stopped = false;
 
 #endif

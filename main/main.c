@@ -1,3 +1,4 @@
+#include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "globals.h"
 #include "nvs_flash.h"
@@ -5,6 +6,7 @@
 #include "driver/touch_sensor.h"
 
 #include "task.c"
+#include "touchpad.c"
 #include "wifi.c"
 
 static void wifi_led_handle(void *pvParameters) {
@@ -36,19 +38,24 @@ void app_main(void) {
 
   xTaskCreate(&wifi_led_handle, "wifi_led_handle", 4096, NULL, 4, NULL);
 
-  // TODO: touchpad pause functionality
-  // xTaskCreate(&touchpad_handle, "touch_pad_handle", 8096, NULL,
-  //             tskIDLE_PRIORITY, NULL);
-
   wifi_init_sta();
 
   // Prepare the server
   start_task();
 
-  // Create the task
-  submit_task(WEB_SUBMIT_URL);
+  // Touchpad pause functionality
+  xTaskCreate(&touchpad_handle, "touchpad_handle", 4096, NULL, 5, NULL);
 
-  printf("Restarting now.\n");
-  fflush(stdout);
-  esp_restart();
+  // Create the task
+  submit_task();
+
+  /* STOPPED PHASE: */
+  stop_task();
+
+  while (1) {
+    gpio_set_level(BUILTIN_LED, 1);
+    vTaskDelay(1500 / portTICK_PERIOD_MS);
+    gpio_set_level(BUILTIN_LED, 0);
+    vTaskDelay(1500 / portTICK_PERIOD_MS);
+  }
 }
