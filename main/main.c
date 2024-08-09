@@ -1,12 +1,12 @@
 #include "freertos/FreeRTOS.h"
 #include "nvs_flash.h"
 
+#include "driver/touch_sensor.h"
+
 #include "task.c"
 #include "wifi.c"
 
-#define FOO_BAR_ENABLE CONFIG_FOO_ENABLE_BAR
-
-static void wifi_led_handle() {
+static void wifi_led_handle(void *pvParameters) {
   while (!wifi_connected && !wifi_error) {
     gpio_set_level(BUILTIN_LED, 0);
     vTaskDelay(350 / portTICK_PERIOD_MS);
@@ -34,6 +34,11 @@ void app_main(void) {
   ESP_LOGI("MAIN", "ESP_WIFI_MODE_STA");
 
   xTaskCreate(&wifi_led_handle, "wifi_led_handle", 4096, NULL, 4, NULL);
+
+  // TODO: touchpad pause functionality
+  // xTaskCreate(&touchpad_handle, "touch_pad_handle", 8096, NULL,
+  //             tskIDLE_PRIORITY, NULL);
+
   wifi_init_sta();
 
   // Create the task
