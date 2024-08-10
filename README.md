@@ -3,7 +3,7 @@
 
 # Hotspot Checker Firmware
 
-This firmware is used to check hotspot availability. The firmware connects to a hotspot Wi-Fi and sends ping requests to a remote server each 5 seconds. If the remote [backend server](https://codeberg.org/tomkoid/hotspot-checker-backend) has not received any message in an amount of time, it will send a notification to the phone sharing the hotspot through [Ntfy](https://ntfy.sh/).
+This firmware is used to check hotspot availability. The firmware connects to a hotspot Wi-Fi and sends ping requests to a remote server. If the remote [backend server](https://codeberg.org/tomkoid/hotspot-checker-backend) has not received any message in an amount of time, it will send a notification to the phone sharing the hotspot through [Ntfy](https://ntfy.sh/). This is useful especially on iOS where hotspots are extremely unstable.
 
 ## How to use
 
