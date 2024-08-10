@@ -41,3 +41,9 @@ For more information on structure and contents of ESP-IDF projects, please refer
 
     * Hardware connection is not correct: run `idf.py -p PORT monitor`, and reboot your board to see if there are any output logs.
     * The baud rate for downloading is too high: lower your baud rate in the `idf.py menuconfig` menu, and try again.
+
+# License
+
+This project is licensed under the MIT License. See LICENSE for more information.
+
+Copyright 2024 Tomkoid
