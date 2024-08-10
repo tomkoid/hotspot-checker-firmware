@@ -15,7 +15,7 @@ Select the instructions depending on Espressif chip installed on your developmen
 
 After a successful project clone, you'll likely want to configure the project with `idf.py menuconfig` to change the Wi-Fi SSID and password of the hotspot and to change the backend endpoint with the correct backend password.
 
-These settings are located in `Wi-Fi Settings` and `Server Endpoint`.
+These settings are located in `Wi-Fi Settings` and `Server Settings`.
 
 ### Build and flash
 
