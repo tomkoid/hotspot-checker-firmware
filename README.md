@@ -33,7 +33,7 @@ For more information on structure and contents of ESP-IDF projects, please refer
 - [x] LED indicator
 - [x] Start and pause requests
 - [x] Hold touch sensor to pause hotspot checking (press the restart button to resume hotspot checking)
-- [ ] Able to send ping requests through HTTPS
+- [x] Able to send ping requests through HTTPS
 
 ## Troubleshooting
 
