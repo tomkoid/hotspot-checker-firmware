@@ -4,6 +4,7 @@
 #include "globals.h"
 #include <esp_log.h>
 #include <esp_tls.h>
+#include <stdlib.h>
 
 #include "url.c"
 
@@ -98,7 +99,9 @@ void submit_task() {
 
     gpio_set_level(BUILTIN_LED, 0);
 
-    for (int countdown = 5; countdown >= 0; countdown--) {
+    int interval = atoi(WEB_SUBMIT_INTERVAL);
+
+    for (int countdown = interval; countdown > 0; countdown--) {
       // ESP_LOGI(TAG, "%d... ", countdown);
       printf("%d... ", countdown);
       fflush(stdout);

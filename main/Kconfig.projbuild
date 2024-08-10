@@ -24,7 +24,7 @@ menu "Wi-Fi Settings"
             Max number of the STA connects to AP.
 endmenu
 
-menu "Server Endpoint"
+menu "Server Settings"
     config ESP_SUBMIT_URL
         string "Submit URL"
         default "http://example.com"
@@ -37,5 +37,10 @@ menu "Server Endpoint"
         help
             Password for count API
 
+    config ESP_SUBMIT_INTERVAL
+        string "Submit Interval"
+        default 10
+        help
+            Submit interval for count API
 endmenu
 
