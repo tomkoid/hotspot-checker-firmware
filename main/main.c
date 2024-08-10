@@ -12,9 +12,9 @@
 static void wifi_led_handle(void *pvParameters) {
   while (!wifi_connected && !wifi_error) {
     gpio_set_level(BUILTIN_LED, 0);
-    vTaskDelay(350 / portTICK_PERIOD_MS);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
     gpio_set_level(BUILTIN_LED, 1);
-    vTaskDelay(350 / portTICK_PERIOD_MS);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 
   vTaskDelete(NULL);
