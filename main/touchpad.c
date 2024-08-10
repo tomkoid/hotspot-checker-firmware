@@ -13,6 +13,9 @@
 
 static void tp_example_touch_pad_init(void) {
   for (int i = 0; i < TOUCH_PAD_MAX; i++) {
+    if (i == TOUCH_PAD_NUM2) {
+      continue;
+    }
     touch_pad_config(i, TOUCH_THRESH_NO_USE);
   }
 }
