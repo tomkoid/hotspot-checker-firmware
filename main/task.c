@@ -1,7 +1,9 @@
 #include "driver/gpio.h"
+#include "esp_crt_bundle.h"
 #include "esp_http_client.h"
 #include "globals.h"
 #include <esp_log.h>
+#include <esp_tls.h>
 
 #include "url.c"
 
@@ -48,10 +50,10 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
 esp_err_t http_post(const char *url) {
   const char *TAG = "HTTP_POST";
 
-  esp_http_client_config_t config = {
-      .url = url,
-      .method = HTTP_METHOD_POST,
-  };
+  esp_http_client_config_t config = {.url = url,
+                                     .method = HTTP_METHOD_POST,
+                                     .crt_bundle_attach =
+                                         esp_crt_bundle_attach};
 
   esp_http_client_handle_t client = esp_http_client_init(&config);
 
