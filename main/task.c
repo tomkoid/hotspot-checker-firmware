@@ -52,10 +52,12 @@ esp_http_client_handle_t get_http_client(const char *url) {
   const char *TAG = "GET_HTTP_CLIENT";
 
   esp_http_client_config_t config = {
-      .url = url,
-      .method = HTTP_METHOD_POST,
-      // .event_handler = _http_event_handler, // debug info
-      .crt_bundle_attach = esp_crt_bundle_attach,
+    .url = url,
+    .method = HTTP_METHOD_POST,
+#if CONFIG_ESP_REQUEST_DEBUG
+    .event_handler = _http_event_handler, // debug info
+#endif
+    .crt_bundle_attach = esp_crt_bundle_attach,
   };
 
   esp_http_client_handle_t client = esp_http_client_init(&config);
@@ -111,7 +113,7 @@ void submit_task() {
 
     gpio_set_level(BUILTIN_LED, 0);
 
-    int interval = atoi(WEB_SUBMIT_INTERVAL);
+    int interval = WEB_SUBMIT_INTERVAL;
 
     for (int countdown = interval; countdown > 0; countdown--) {
       // ESP_LOGI(TAG, "%d... ", countdown);

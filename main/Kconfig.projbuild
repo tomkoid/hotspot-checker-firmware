@@ -38,9 +38,15 @@ menu "Server Settings"
             Password for count API
 
     config ESP_SUBMIT_INTERVAL
-        string "Submit Interval"
+        int "Submit Interval"
         default 10
         help
             Submit interval for count API
+
+    config ESP_REQUEST_DEBUG
+        bool "Request Debug"
+        default n 
+        help
+            Request debug
 endmenu
 
