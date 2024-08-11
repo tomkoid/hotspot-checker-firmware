@@ -1,4 +1,7 @@
 #include "driver/gpio.h"
+#include "esp_err.h"
+#include "esp_event.h"
+#include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "globals.h"
 #include "nvs_flash.h"
@@ -9,12 +12,31 @@
 #include "touchpad.c"
 #include "wifi.c"
 
-static void wifi_led_handle(void *pvParameters) {
-  while (!wifi_connected && !wifi_error) {
-    gpio_set_level(BUILTIN_LED, 0);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    gpio_set_level(BUILTIN_LED, 1);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+static void wifi_connection_handle(void *pvParameters) {
+  bool first_time = true;
+
+  while (true) {
+    // wait until wifi is connected
+    while (!is_wifi_connected()) {
+      // only spawn wifi_init_sta once wifi is connected and then wifi was
+      // disconnected
+      if (!first_time) {
+        device_stopped = true;
+        fflush(stdout);
+
+        // just restart
+        esp_restart();
+      }
+
+      gpio_set_level(BUILTIN_LED, 0);
+      vTaskDelay(100 / portTICK_PERIOD_MS);
+      gpio_set_level(BUILTIN_LED, 1);
+      vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+
+    first_time = false;
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 
   vTaskDelete(NULL);
@@ -36,9 +58,10 @@ void app_main(void) {
 
   ESP_LOGI("MAIN", "ESP_WIFI_MODE_STA");
 
-  xTaskCreate(&wifi_led_handle, "wifi_led_handle", 1024, NULL, 4, NULL);
+  xTaskCreate(&wifi_connection_handle, "wifi_connection_handle", 4096, NULL, 4,
+              NULL);
 
-  wifi_init_sta();
+  wifi_init_sta(NULL);
 
   // Prepare the server
   start_task();

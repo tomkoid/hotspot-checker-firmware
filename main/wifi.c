@@ -4,8 +4,6 @@
 #include "globals.h"
 
 static int s_retry_num = 0;
-bool wifi_connected = false;
-bool wifi_error = false;
 
 static EventGroupHandle_t s_wifi_event_group;
 
@@ -32,7 +30,30 @@ static void event_handler(void *arg, esp_event_base_t event_base,
   }
 }
 
-void wifi_init_sta(void) {
+bool is_wifi_connected() {
+  wifi_mode_t mode;
+  wifi_ap_record_t ap_info;
+
+  // Get the current WiFi mode
+  esp_err_t mode_result = esp_wifi_get_mode(&mode);
+  if (mode_result != ESP_OK) {
+    ESP_LOGE("WiFi", "Failed to get WiFi mode");
+    return false;
+  }
+
+  // Check if the mode is STATION or APSTA
+  if (mode != WIFI_MODE_STA && mode != WIFI_MODE_APSTA) {
+    return false;
+  }
+
+  // Try to get the AP info
+  esp_err_t ap_result = esp_wifi_sta_get_ap_info(&ap_info);
+
+  // If we can get the AP info, we're connected
+  return (ap_result == ESP_OK);
+}
+
+void wifi_init_sta(void *pvArguments) {
   const char *TAG = "WIFI";
 
   s_wifi_event_group = xEventGroupCreate();
@@ -70,7 +91,11 @@ void wifi_init_sta(void) {
   };
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
-  ESP_ERROR_CHECK(esp_wifi_start());
+
+  while (!is_wifi_connected()) {
+    ESP_ERROR_CHECK(esp_wifi_start());
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+  }
 
   ESP_LOGI(TAG, "wifi_init_sta finished.");
 
@@ -86,14 +111,10 @@ void wifi_init_sta(void) {
   if (bits & WIFI_CONNECTED_BIT) {
     ESP_LOGI(TAG, "connected to ap SSID:%s password:%s", ESP_WIFI_SSID,
              ESP_WIFI_PASS);
-    wifi_connected = true;
   } else if (bits & WIFI_FAIL_BIT) {
     ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s", ESP_WIFI_SSID,
              ESP_WIFI_PASS);
-    wifi_connected = false;
-    wifi_error = true;
   } else {
     ESP_LOGE(TAG, "UNEXPECTED EVENT");
-    wifi_error = true;
   }
 }

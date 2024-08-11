@@ -141,7 +141,7 @@ void start_task() {
   esp_http_client_handle_t client = get_http_client(get_web_url("/start"));
 
   int attempts = 0;
-  int max_attempts = 5;
+  int max_attempts = 3;
   while (1) {
     if (attempts > max_attempts) {
       ESP_LOGE(TAG, "Failed to start after %d attempts", max_attempts);
