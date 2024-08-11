@@ -36,7 +36,7 @@ void app_main(void) {
 
   ESP_LOGI("MAIN", "ESP_WIFI_MODE_STA");
 
-  xTaskCreate(&wifi_led_handle, "wifi_led_handle", 4096, NULL, 4, NULL);
+  xTaskCreate(&wifi_led_handle, "wifi_led_handle", 1024, NULL, 4, NULL);
 
   wifi_init_sta();
 

@@ -48,15 +48,27 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
   return ESP_OK;
 }
 
-esp_err_t http_post(const char *url) {
-  const char *TAG = "HTTP_POST";
+esp_http_client_handle_t get_http_client(const char *url) {
+  const char *TAG = "GET_HTTP_CLIENT";
 
-  esp_http_client_config_t config = {.url = url,
-                                     .method = HTTP_METHOD_POST,
-                                     .crt_bundle_attach =
-                                         esp_crt_bundle_attach};
+  esp_http_client_config_t config = {
+      .url = url,
+      .method = HTTP_METHOD_POST,
+      // .event_handler = _http_event_handler, // debug info
+      .crt_bundle_attach = esp_crt_bundle_attach,
+  };
 
   esp_http_client_handle_t client = esp_http_client_init(&config);
+  if (client == NULL) {
+    ESP_LOGE(TAG, "Failed to initialise HTTP connection");
+    return NULL;
+  }
+
+  return client;
+}
+
+esp_err_t http_post(esp_http_client_handle_t client) {
+  const char *TAG = "HTTP_POST";
 
   const char *post_data = WEB_SUBMIT_PASSWORD;
   esp_http_client_set_header(client, "Content-Type", "text/plain");
@@ -81,16 +93,16 @@ esp_err_t http_post(const char *url) {
     // free(buffer);
   }
 
-  esp_http_client_cleanup(client);
-
   return err;
 }
 
 void submit_task() {
   const char *TAG = "SUBMIT_TASK";
 
+  esp_http_client_handle_t client = get_http_client(WEB_SUBMIT_URL);
+
   while (1) {
-    esp_err_t err = http_post(WEB_SUBMIT_URL);
+    esp_err_t err = http_post(client);
     if (err != ESP_OK) {
       ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
       vTaskDelay(3000 / portTICK_PERIOD_MS);
@@ -117,10 +129,14 @@ void submit_task() {
       break;
     }
   }
+
+  esp_http_client_cleanup(client);
 }
 
 void start_task() {
   const char *TAG = "START_TASK";
+
+  esp_http_client_handle_t client = get_http_client(get_web_url("/start"));
 
   int attempts = 0;
   int max_attempts = 5;
@@ -129,7 +145,7 @@ void start_task() {
       ESP_LOGE(TAG, "Failed to start after %d attempts", max_attempts);
       exit(1);
     }
-    esp_err_t err = http_post(get_web_url("/start"));
+    esp_err_t err = http_post(client);
     if (err != ESP_OK) {
       ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
       vTaskDelay(3000 / portTICK_PERIOD_MS);
@@ -140,10 +156,14 @@ void start_task() {
     }
     attempts++;
   }
+
+  esp_http_client_cleanup(client);
 }
 
 void stop_task() {
   const char *TAG = "STOP_TASK";
+
+  esp_http_client_handle_t client = get_http_client(get_web_url("/stop"));
 
   int attempts = 0;
   int max_attempts = 5;
@@ -152,7 +172,7 @@ void stop_task() {
       ESP_LOGE(TAG, "Failed to stop after %d attempts", max_attempts);
       exit(1);
     }
-    esp_err_t err = http_post(get_web_url("/stop"));
+    esp_err_t err = http_post(client);
     if (err != ESP_OK) {
       ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
       vTaskDelay(3000 / portTICK_PERIOD_MS);
@@ -163,4 +183,6 @@ void stop_task() {
     }
     attempts++;
   }
+
+  esp_http_client_cleanup(client);
 }
