@@ -1,12 +1,8 @@
 #include "driver/gpio.h"
 #include "esp_err.h"
-#include "esp_event.h"
 #include "esp_system.h"
-#include "freertos/FreeRTOS.h"
 #include "globals.h"
 #include "nvs_flash.h"
-
-#include "driver/touch_sensor.h"
 
 #include "task.c"
 #include "touchpad.c"
@@ -23,6 +19,8 @@ static void wifi_connection_handle(void *pvParameters) {
       if (!first_time) {
         device_stopped = true;
         fflush(stdout);
+
+        ESP_LOGI("MAIN", "Wifi disconnected, restarting...");
 
         // just restart
         esp_restart();
