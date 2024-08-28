@@ -9,30 +9,14 @@
 #include "wifi.c"
 
 static void wifi_connection_handle(void *pvParameters) {
-  bool first_time = true;
-
   while (true) {
     // wait until wifi is connected
     while (!is_wifi_connected()) {
-      // only spawn wifi_init_sta once wifi is connected and then wifi was
-      // disconnected
-      if (!first_time) {
-        device_stopped = true;
-        fflush(stdout);
-
-        ESP_LOGI("MAIN", "Wifi disconnected, restarting...");
-
-        // just restart
-        esp_restart();
-      }
-
       gpio_set_level(BUILTIN_LED, 0);
       vTaskDelay(100 / portTICK_PERIOD_MS);
       gpio_set_level(BUILTIN_LED, 1);
       vTaskDelay(100 / portTICK_PERIOD_MS);
     }
-
-    first_time = false;
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }

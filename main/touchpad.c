@@ -49,7 +49,7 @@ void touchpad_handle(void *pvParameters) {
 
     // if touchpad is confident it is actually pressed
     if (touchpad_confidence >= touchpad_confidence_minimal) {
-      device_stopped = true;
+      device_exit = true;
       break;
     }
 

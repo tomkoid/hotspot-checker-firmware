@@ -1,6 +1,7 @@
 #include "driver/gpio.h"
 #include "esp_crt_bundle.h"
 #include "esp_http_client.h"
+#include "freertos/idf_additions.h"
 #include "globals.h"
 #include <esp_log.h>
 #include <esp_tls.h>
@@ -52,12 +53,12 @@ esp_http_client_handle_t get_http_client(const char *url) {
   const char *TAG = "GET_HTTP_CLIENT";
 
   esp_http_client_config_t config = {
-    .url = url,
-    .method = HTTP_METHOD_POST,
+      .url = url,
+      .method = HTTP_METHOD_POST,
 #if CONFIG_ESP_REQUEST_DEBUG
-    .event_handler = _http_event_handler, // debug info
+      .event_handler = _http_event_handler, // debug info
 #endif
-    .crt_bundle_attach = esp_crt_bundle_attach,
+      .crt_bundle_attach = esp_crt_bundle_attach,
   };
 
   esp_http_client_handle_t client = esp_http_client_init(&config);
@@ -98,15 +99,26 @@ esp_err_t http_post(esp_http_client_handle_t client) {
   return err;
 }
 
+void start_task();
+
 void submit_task() {
   const char *TAG = "SUBMIT_TASK";
 
   esp_http_client_handle_t client = get_http_client(WEB_SUBMIT_URL);
 
   while (1) {
+    if (device_exit) {
+      break;
+    }
+
     esp_err_t err = http_post(client);
     if (err != ESP_OK) {
       ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
+
+      // reset client if wifi was disconnected therefore a new client needs to
+      // be created
+      client = get_http_client(WEB_SUBMIT_URL);
+
       vTaskDelay(3000 / portTICK_PERIOD_MS);
       continue;
     }
@@ -126,9 +138,20 @@ void submit_task() {
 
     gpio_set_level(BUILTIN_LED, 1);
 
-    // if device is physically stopped, stop submitting
-    if (device_stopped) {
-      break;
+    // stop temporarily if device is stopped
+    while (1) {
+      bool first_time = true;
+      if (device_stopped) {
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+      } else {
+        if (!first_time) {
+          ESP_LOGI(TAG, "Sending info about device started again!");
+          xTaskCreate(&start_task, "start_task", 4096, NULL, 5, NULL);
+        }
+        break;
+      }
+
+      first_time = false;
     }
   }
 
@@ -143,6 +166,15 @@ void start_task() {
   int attempts = 0;
   int max_attempts = 3;
   while (1) {
+    // stop temporarily if device is stopped
+    while (1) {
+      if (device_stopped) {
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+      } else {
+        break;
+      }
+    }
+
     if (attempts > max_attempts) {
       ESP_LOGE(TAG, "Failed to start after %d attempts", max_attempts);
       exit(1);
@@ -150,6 +182,11 @@ void start_task() {
     esp_err_t err = http_post(client);
     if (err != ESP_OK) {
       ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
+
+      // reset client if wifi was disconnected therefore a new client needs to
+      // be created
+      client = get_http_client(get_web_url("/start"));
+
       vTaskDelay(3000 / portTICK_PERIOD_MS);
       attempts++;
       continue;
@@ -177,6 +214,11 @@ void stop_task() {
     esp_err_t err = http_post(client);
     if (err != ESP_OK) {
       ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
+
+      // reset client if wifi was disconnected therefore a new client needs to
+      // be created
+      client = get_http_client(get_web_url("/stop"));
+
       vTaskDelay(3000 / portTICK_PERIOD_MS);
       attempts++;
       continue;

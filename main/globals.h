@@ -24,5 +24,6 @@
 #define WEB_PATH "/"
 
 bool device_stopped = false;
+bool device_exit = false;
 
 #endif
