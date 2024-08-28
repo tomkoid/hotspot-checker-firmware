@@ -1,40 +1,22 @@
 #include "driver/gpio.h"
 #include "esp_err.h"
-#include "esp_event.h"
 #include "esp_system.h"
-#include "freertos/FreeRTOS.h"
 #include "globals.h"
 #include "nvs_flash.h"
-
-#include "driver/touch_sensor.h"
 
 #include "task.c"
 #include "touchpad.c"
 #include "wifi.c"
 
 static void wifi_connection_handle(void *pvParameters) {
-  bool first_time = true;
-
   while (true) {
     // wait until wifi is connected
     while (!is_wifi_connected()) {
-      // only spawn wifi_init_sta once wifi is connected and then wifi was
-      // disconnected
-      if (!first_time) {
-        device_stopped = true;
-        fflush(stdout);
-
-        // just restart
-        esp_restart();
-      }
-
       gpio_set_level(BUILTIN_LED, 0);
       vTaskDelay(100 / portTICK_PERIOD_MS);
       gpio_set_level(BUILTIN_LED, 1);
       vTaskDelay(100 / portTICK_PERIOD_MS);
     }
-
-    first_time = false;
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
