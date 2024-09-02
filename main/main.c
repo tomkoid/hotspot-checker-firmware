@@ -59,8 +59,10 @@ void app_main(void) {
   submit_task();
 
   /* STOPPED PHASE: */
-  stop_task();
-  esp_wifi_disconnect();
+  if (is_wifi_connected()) {
+    stop_task();
+    esp_wifi_disconnect();
+  }
 
   while (1) {
     gpio_set_level(BUILTIN_LED, 1);
