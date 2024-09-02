@@ -39,7 +39,7 @@ menu "Server Settings"
 
     config ESP_SUBMIT_INTERVAL
         int "Submit Interval"
-        default 10
+        default 5 
         help
             Submit interval for count API
 
