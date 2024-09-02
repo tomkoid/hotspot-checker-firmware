@@ -128,7 +128,27 @@ void submit_task() {
     int interval = WEB_SUBMIT_INTERVAL;
 
     for (int countdown = interval; countdown > 0; countdown--) {
-      // ESP_LOGI(TAG, "%d... ", countdown);
+      // exit if device_exit signal
+      if (device_exit) {
+        break;
+      }
+
+      // stop temporarily if device is stopped
+      while (1) {
+        bool first_time = true;
+        if (device_stopped) {
+          vTaskDelay(500 / portTICK_PERIOD_MS);
+        } else {
+          if (!first_time) {
+            ESP_LOGI(TAG, "Sending info about device started again!");
+            xTaskCreate(&start_task, "start_task", 4096, NULL, 5, NULL);
+          }
+          break;
+        }
+
+        first_time = false;
+      }
+
       printf("%d... ", countdown);
       fflush(stdout);
       vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -137,22 +157,6 @@ void submit_task() {
     ESP_LOGI(TAG, "Starting again!");
 
     gpio_set_level(BUILTIN_LED, 1);
-
-    // stop temporarily if device is stopped
-    while (1) {
-      bool first_time = true;
-      if (device_stopped) {
-        vTaskDelay(500 / portTICK_PERIOD_MS);
-      } else {
-        if (!first_time) {
-          ESP_LOGI(TAG, "Sending info about device started again!");
-          xTaskCreate(&start_task, "start_task", 4096, NULL, 5, NULL);
-        }
-        break;
-      }
-
-      first_time = false;
-    }
   }
 
   esp_http_client_cleanup(client);
