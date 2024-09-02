@@ -10,8 +10,12 @@
 
 static void wifi_connection_handle(void *pvParameters) {
   while (true) {
+    if (device_exit) {
+      break;
+    }
+
     // wait until wifi is connected
-    while (!is_wifi_connected()) {
+    while (!is_wifi_connected() && !device_exit) {
       gpio_set_level(BUILTIN_LED, 0);
       vTaskDelay(100 / portTICK_PERIOD_MS);
       gpio_set_level(BUILTIN_LED, 1);
@@ -56,6 +60,7 @@ void app_main(void) {
 
   /* STOPPED PHASE: */
   stop_task();
+  esp_wifi_disconnect();
 
   while (1) {
     gpio_set_level(BUILTIN_LED, 1);
