@@ -213,7 +213,7 @@ void stop_task() {
   while (1) {
     if (attempts > max_attempts) {
       ESP_LOGE(TAG, "Failed to stop after %d attempts", max_attempts);
-      exit(1);
+      return;
     }
     esp_err_t err = http_post(client);
     if (err != ESP_OK) {
